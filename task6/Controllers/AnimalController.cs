@@ -3,7 +3,7 @@ using Microsoft.Data.SqlClient;
 using task6.Models;
 
 
-namespace Tutorial6.Showcase.Controllers
+namespace task6.Controllers
 {
     [ApiController]
     public class AnimalController : ControllerBase
@@ -20,8 +20,8 @@ namespace Tutorial6.Showcase.Controllers
         public IActionResult GetAnimals(string orderBy = "Name")
         {
             var connectionString = _configuration.GetConnectionString("DefaultConnection");
-            Console.WriteLine(connectionString);  
-            var query = "SELECT * FROM Animal ORDER BY " + orderBy; 
+            //Console.WriteLine(connectionString);  
+            var query = "SELECT * FROM master.dbo.Animal ORDER BY " + orderBy; 
 
             var allowedOrderBys = new HashSet<string>{"name", "description", "category", "area"};
             if (!allowedOrderBys.Contains(orderBy.ToLower()))
@@ -42,11 +42,11 @@ namespace Tutorial6.Showcase.Controllers
                         {
                             var animal = new Animal
                             {
-                                IdAnimal = (int)reader["IdAnimal"],
-                                Name = reader["Name"].ToString(),
-                                Description = reader["Description"].ToString(),
-                                Category = reader["Category"].ToString(),
-                                Area = reader["Area"].ToString()
+                                IdAnimal = reader.GetInt32(0),
+                                Name = reader.GetString(1),
+                                Description = reader.GetString(2),
+                                Category = reader.GetString(3),
+                                Area = reader.GetString(4),
                             };
                             animals.Add(animal);
                         }
@@ -70,7 +70,7 @@ namespace Tutorial6.Showcase.Controllers
 
             using (var connection = new SqlConnection(connectionString))
             {
-                var command = new SqlCommand("SELECT * FROM Animal WHERE IdAnimal = @IdAnimal", connection);
+                var command = new SqlCommand("SELECT * FROM master.dbo.Animal WHERE IdAnimal = @IdAnimal", connection);
                 command.Parameters.AddWithValue("@IdAnimal", id);
 
                 try
@@ -82,11 +82,11 @@ namespace Tutorial6.Showcase.Controllers
                         {
                             animal = new Animal
                             {
-                                IdAnimal = (int)reader["IdAnimal"],
-                                Name = reader["Name"].ToString(),
-                                Description = reader["Description"].ToString(),
-                                Category = reader["Category"].ToString(),
-                                Area = reader["Area"].ToString()
+                                IdAnimal = reader.GetInt32(0),
+                                Name = reader.GetString(1),
+                                Description = reader.GetString(2),
+                                Category = reader.GetString(3),
+                                Area = reader.GetString(4),
                             };
                         }
                     }
@@ -118,7 +118,8 @@ namespace Tutorial6.Showcase.Controllers
 
             using (var connection = new SqlConnection(connectionString))
             {
-                var command = new SqlCommand("INSERT INTO Animal (Name, Description, Category, Area) VALUES (@Name, @Description, @Category, @Area)", connection);
+                var command = new SqlCommand("INSERT INTO master.dbo.Animal (IdAnimal, Name, Description, Category, Area) VALUES (@IdAnimal, @Name, @Description, @Category, @Area)", connection);
+                command.Parameters.AddWithValue("@IdAnimal", newAnimal.IdAnimal);
                 command.Parameters.AddWithValue("@Name", newAnimal.Name);
                 command.Parameters.AddWithValue("@Description", newAnimal.Description);
                 command.Parameters.AddWithValue("@Category", newAnimal.Category);
@@ -155,7 +156,7 @@ namespace Tutorial6.Showcase.Controllers
             {
                 connection.Open();
 
-                var checkCommand = new SqlCommand("SELECT COUNT(1) FROM Animal WHERE IdAnimal = @IdAnimal", connection);
+                var checkCommand = new SqlCommand("SELECT COUNT(1) FROM master.dbo.Animal WHERE IdAnimal = @IdAnimal", connection);
                 checkCommand.Parameters.AddWithValue("@IdAnimal", id);
 
                 bool exists = Convert.ToInt32(checkCommand.ExecuteScalar()) > 0;
@@ -163,11 +164,11 @@ namespace Tutorial6.Showcase.Controllers
                 SqlCommand command;
                 if (!exists)
                 {
-                    command = new SqlCommand("INSERT INTO Animal (IdAnimal, Name, Description, Category, Area) VALUES (@IdAnimal, @Name, @Description, @Category, @Area)", connection);
+                    command = new SqlCommand("INSERT INTO master.dbo.Animal (IdAnimal, Name, Description, Category, Area) VALUES (@IdAnimal, @Name, @Description, @Category, @Area)", connection);
                 }
                 else
                 {
-                    command = new SqlCommand("UPDATE Animal SET Name = @Name, Description = @Description, Category = @Category, Area = @Area WHERE IdAnimal = @IdAnimal", connection);
+                    command = new SqlCommand("UPDATE master.dbo.Animal SET Name = @Name, Description = @Description, Category = @Category, Area = @Area WHERE IdAnimal = @IdAnimal", connection);
                 }
 
                 command.Parameters.AddWithValue("@IdAnimal", id);
