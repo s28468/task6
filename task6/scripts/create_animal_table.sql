@@ -12,4 +12,4 @@ insert into Animal values (2, 'q2', 'w', 'e','r')
 insert into Animal values (3, 'q3', 'w', 'e','r')
 insert into Animal values (4, 'q4', 'w', 'e','r')
 
-select * from Animal
+select * from Animal where IdAnimal = 2
